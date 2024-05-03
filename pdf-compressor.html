@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Converter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Image Converter</h1>
+        <input type="file" id="fileInput" multiple
+            accept=".tif, .tiff, .jpg, .jpeg, .png, .webp, .hiec, .heif, .avif, .bmp, .eps, .raw, .cr2, .nef, .orf, .sr2">
+        <div>
+            <label for="inputFormat">Input Format:</label>
+            <select id="inputFormat">
+                <option value="tif">TIFF (.tif)</option>
+                <option value="tiff">TIFF (.tiff)</option>
+                <option value="jpg">JPEG (.jpg)</option>
+                <option value="jpeg">JPEG (.jpeg)</option>
+                <option value="png">PNG (.png)</option>
+                <option value="webp">WEBP (.webp)</option>
+                <option value="hiec">HIEC (.hiec)</option>
+                <option value="heif">HEIF (.heif)</option>
+                <option value="avif">AVIF (.avif)</option>
+                <option value="bmp">BMP (.bmp)</option>
+                <option value="eps">EPS (.eps)</option>
+                <option value="raw">RAW (.raw)</option>
+                <option value="cr2">CR2 (.cr2)</option>
+                <option value="nef">NEF (.nef)</option>
+                <option value="orf">ORF (.orf)</option>
+                <option value="sr2">SR2 (.sr2)</option>
+            </select>
+        </div>
+        <div>
+            <label for="outputFormat">Output Format:</label>
+            <select id="outputFormat">
+                <option value="tif">TIFF (.tif)</option>
+                <option value="tiff">TIFF (.tiff)</option>
+                <option value="jpg">JPEG (.jpg)</option>
+                <option value="jpeg">JPEG (.jpeg)</option>
+                <option value="png">PNG (.png)</option>
+                <option value="webp">WEBP (.webp)</option>
+                <option value="hiec">HIEC (.hiec)</option>
+                <option value="heif">HEIF (.heif)</option>
+                <option value="avif">AVIF (.avif)</option>
+                <option value="bmp">BMP (.bmp)</option>
+                <option value="eps">EPS (.eps)</option>
+                <option value="raw">RAW (.raw)</option>
+                <option value="cr2">CR2 (.cr2)</option>
+                <option value="nef">NEF (.nef)</option>
+                <option value="orf">ORF (.orf)</option>
+                <option value="sr2">SR2 (.sr2)</option>
+            </select>
+        </div>
+        <button onclick="convertImages()">Convert</button>
+        <table id="outputTable"></table>
+        <button id="downloadAllButton">Download All as ZIP</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/gh/WangYuLue/image-conversion/build/conversion.js"></script>
+    <script>
+        // Include the image-conversion library (make sure to include it in your project)
+        // You can download it from: https://github.com/wanhongfei/image-conversion
+        // Include the library in your HTML file like this:
+        // 
+
+        function convertImages() {
+            const fileInput = document.getElementById('fileInput');
+            const inputFormat = document.getElementById('inputFormat').value;
+            const outputFormat = document.getElementById('outputFormat').value;
+            const outputTable = document.getElementById('outputTable');
+
+            // Clear previous output
+            outputTable.innerHTML = '';
+
+            // Loop through selected files
+            for (const file of fileInput.files) {
+                const reader = new FileReader();
+                reader.onload = async function (event) {
+                    const convertedImage = await convertImage(event.target.result, inputFormat, outputFormat);
+                    displayImageInTable(file.name, convertedImage);
+                };
+                reader.readAsDataURL(file);
+            }
+
+            // Enable download all button
+            document.getElementById('downloadAllButton').disabled = false;
+        }
+
+        async function convertImage(imageData, inputFormat, outputFormat) {
+            try {
+                // Convert image using image-conversion library
+                const convertedImage = await imageConversion.convert({
+                    data: imageData,
+                    outputType: outputFormat,
+                    format: inputFormat
+                });
+                return convertedImage;
+            } catch (error) {
+                console.error('Error converting image:', error);
+                return 'Conversion Error';
+            }
+        }
+
+        function displayImageInTable(filename, imageData) {
+            const thumbnail = generateThumbnail(imageData);
+            const downloadButton = `<button onclick="downloadFile('${filename}', '${imageData}')">Download</button>`;
+            const row = `<tr><td>${filename}</td><td>${thumbnail}</td><td>${downloadButton}</td></tr>`;
+            document.getElementById('outputTable').innerHTML += row;
+        }
+
+        function generateThumbnail(imageSrc) {
+            return `<img src="${imageSrc}" alt="Thumbnail" style="max-width: 100px;">`;
+        }
+
+        function downloadFile(filename, imageData) {
+            // For simplicity, let's just open the image in a new tab for download
+            const downloadLink = document.createElement('a');
+            downloadLink.href = imageData;
+            downloadLink.download = filename;
+            downloadLink.click();
+        }
+
+    </script>
+</body>
+
+</html>
